@@ -1,66 +1,91 @@
+from typing import List
 from pydantic import BaseModel
 
+# observation model
 class Observation(BaseModel):
-    product: str
+    options: List
 
+
+# action model
 class Action(BaseModel):
     choice: int
 
+
+# reward model
 class Reward(BaseModel):
-    score: float
+    value: float
 
 
 class ProductEnv:
 
     def __init__(self):
 
-        self.products = [
+        self.tasks = [
+
             [
                 ("iphone",52000,4.6,2),
                 ("iphone",51000,4.5,3),
                 ("iphone",53000,4.8,1)
             ],
+
             [
                 ("laptop",60000,4.2,4),
                 ("laptop",58000,4.1,3),
                 ("laptop",62000,4.7,2)
             ],
+
             [
                 ("earbuds",2000,4.3,2),
                 ("earbuds",1800,4.0,5),
                 ("earbuds",2100,4.8,1)
             ]
+
         ]
 
         self.index = 0
 
 
     def reset(self):
+
         self.index = 0
-        return Observation(product=str(self.products[self.index]))
+
+        return Observation(
+            options=self.tasks[self.index]
+        )
 
 
     def step(self, action: Action):
 
-        options = self.products[self.index]
+        options = self.tasks[self.index]
 
-        best_price = min(options,key=lambda x:x[1])
+        cheapest = min(options,key=lambda x:x[1])
 
-        correct_index = options.index(best_price)
+        correct_index = options.index(cheapest)
 
         reward = 1.0 if action.choice == correct_index else 0.0
 
         self.index += 1
 
-        done = self.index >= len(self.products)
+        done = self.index >= len(self.tasks)
 
-        if not done:
-            obs = Observation(product=str(self.products[self.index]))
+        if done:
+
+            obs = Observation(options=[])
+
         else:
-            obs = Observation(product="done")
 
-        return obs, Reward(score=reward), done, {}
+            obs = Observation(
+                options=self.tasks[self.index]
+            )
+
+
+        return obs, Reward(value=reward), done, {}
 
 
     def state(self):
-        return {"index": self.index}
+
+        return {
+
+            "task_number": self.index
+
+        }
