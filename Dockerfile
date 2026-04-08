@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY . .
 
-RUN pip install openai pydantic
+RUN pip install fastapi uvicorn pydantic openai
 
-CMD ["python","inference.py"]
+CMD ["uvicorn","server:app","--host","0.0.0.0","--port","7860"]
