@@ -1,0 +1,6 @@
+name: product_env
+
+tasks:
+  - easy
+  - medium
+  - hard
